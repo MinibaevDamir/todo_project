@@ -3,6 +3,7 @@ import React from 'react';
 
 const SignUpFormWRF = (props) => {
     const {error} = props;
+    console.log(error)
     return (
         <form onSubmit={props.handleSubmit}>
             <div className= "input-group">

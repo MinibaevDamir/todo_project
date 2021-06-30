@@ -31,7 +31,6 @@ export function signUp(email, nickname, password) {
             const signUp = await usersAPI.signup(email, nickname, password)
             if (signUp) {
                 dispatch({type: AUTH.FETCHING, fetching: false})
-                dispatch({type: AUTH.REJECTED, rejected: signUp.data.message})
             }
         }
         catch(err) {

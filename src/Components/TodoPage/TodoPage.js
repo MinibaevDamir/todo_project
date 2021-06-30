@@ -1,6 +1,6 @@
 import styles from "./TodoPage.module.css";
 import {CreateForm} from "./Modal/Create/CreateForm";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useState} from "react";
 import {reset, SubmissionError} from "redux-form";
 import {SearchForm} from "./Forms/SearchForm/SearchForm";
 import {Navbar} from "./Navbar/Navbar";
@@ -9,84 +9,74 @@ import {EditForm} from "./Modal/Edit/EditForm";
 
 const TodoPage = (props) => {
     const [create, setCreate] = useState(false);
-
-    const [title, setTitle] = useState(null);
-
+    const [edit, setEdit] = useState(false);
     const [remove, setRemove] = useState(false);
 
-    const [edit, setEdit] = useState(false);
 
     const [id, setId] = useState(null);
-
     const [status, setStatus] = useState(false);
+    const [title, setTitle] = useState(null);
 
     useEffect(() => {
         props.getTasks()
     }, [])
-
-    const createHandlers = {
-        handleClose() {
-            setCreate(false)
-        },
-        handleShow() {
-            setCreate(true)
-        },
-        handleSubmit(dataForm, dispatch) {
-            if (!dataForm.task) {
-                throw new SubmissionError({
-                    _error: "Title field is clear"
-                })
-            } else {
-                props.createTask(dataForm.task)
-                dispatch(reset('create'))
-                createHandlers.handleClose()
-            }
+    const createClose = useCallback(() => {
+        setCreate(false)
+    }, [])
+    const createShow = useCallback(() => {
+        setCreate(true)
+    },[])
+    const createSubmit = useCallback((dataForm, dispatch) => {
+        if (!dataForm.task) {
+            throw new SubmissionError({
+                _error: "Title field is clear"
+            })
+        } else {
+            props.createTask(dataForm.task)
+            dispatch(reset('create'))
+            createClose()
         }
+    }, [props])
 
-    }
-
-    let deleteHandlers = {
-        handleClose() {
-            setRemove(false)
-        },
-        handleShow(id) {
-            setRemove(true)
-            setId(id)
-        }
-    }
-
-    const editHandlers = {
-        handleClose() {
-            setEdit(false)
-        },
-        handleShow(id, status, title) {
-            setTitle(title)
-            setEdit(true)
-            setStatus(status)
-            setId(id)
-        },
-        handleSubmit(dataForm, dispatch) {
-             editHandlers.handleClose()
-             dispatch(reset('edit'))
-            }
-    }
-
-    const deleted = (id) => {
+    const deleteClose = useCallback(() => {
+        setRemove(false)
+    },[])
+    const deleteShow = useCallback((id) => {
+        setId(id)
+        setRemove(true)
+    },[])
+    const deleteSubmit = useCallback((id) => {
         props.deleteTask(id)
-        deleteHandlers.handleClose()
-    }
+        deleteClose()
+    }, [props])
+
+    const editClose = useCallback(() => {
+        setEdit(false)
+    },[])
+    const editShow = useCallback((id, status, title) => {
+        setEdit(true)
+        setTitle(title)
+        setStatus(status)
+        setId(id)
+    },[])
+    const editSubmit = useCallback((dataForm, dispatch) => {
+        editClose()
+        dispatch(reset('edit'))
+    },[props])
+
+
 
     return (
         <div>
-            <Navbar logout={props.logout} handleShow={createHandlers.handleShow}/>
+            <Navbar logout={props.logout} handleShow={createShow}/>
             <div className={styles.todo}>
                 <div className={styles.forms}>
                     <SearchForm filterTasks={props.filterTasks} getTasks={props.getTasks} fetching={props.fetching}/>
-                    <CreateForm create={create} onSubmit={createHandlers.handleSubmit}
-                                handleClose={createHandlers.handleClose}/>
-                    <DeleteModal remove={remove} handleClose={deleteHandlers.handleClose} handleSubmit={deleted}
+                    <CreateForm create={create} onSubmit={createSubmit}
+                                handleClose={createClose}/>
+                    <DeleteModal remove={remove} handleClose={deleteClose} handleSubmit={deleteSubmit}
                                  id={id}/>
-                    <EditForm edit={edit} onSubmit={editHandlers.handleSubmit} handleClose={editHandlers.handleClose}
+                    <EditForm edit={edit} onSubmit={editSubmit} handleClose={editClose}
                                id={id} initialValues={{status: status, title: title}} updateTask = {props.updateTask}/>
                 </div>
                 <table className="table">
@@ -112,14 +102,14 @@ const TodoPage = (props) => {
                             </td>
                             <td>
                                 <button className="btn" onClick={() => {
-                                    deleteHandlers.handleShow(task.id)
+                                    deleteShow(task.id)
                                 }}>
                                     <i className="bi bi-trash-fill"></i>
                                 </button>
                             </td>
                             <td>
                                 <button className="btn" onClick={() => {
-                                    editHandlers.handleShow(task.id, task.status, task.title)
+                                    editShow(task.id, task.status, task.title)
                                 }}>
                                     Edit
                                 </button>

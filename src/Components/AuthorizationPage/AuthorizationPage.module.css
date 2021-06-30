@@ -1,0 +1,16 @@
+.login{
+    font-size: calc(10px  + 2vmin);
+    min-height: 100vh;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
+.formLogin{
+    display: flex;
+}
+.accountText {
+    display: flex;
+    font-size: calc(8px + 1vmin);
+}

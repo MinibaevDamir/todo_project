@@ -1,0 +1,13 @@
+.todo {
+    margin: 3rem 3rem 3rem 3rem;
+}
+.creating{
+    margin-left: 2%;
+}
+.forms {
+    display: flex;
+    flex-direction: row;
+}
+.status {
+    padding: 100px;
+}
